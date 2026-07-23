@@ -92,6 +92,11 @@ class TerminalController: BaseTerminalController, TabGroupCloseCoordinator.Contr
             object: nil)
         center.addObserver(
             self,
+            selector: #selector(onMoveTabToNewWindow),
+            name: .ghosttyMoveTabToNewWindow,
+            object: nil)
+        center.addObserver(
+            self,
             selector: #selector(onGotoTab),
             name: Ghostty.Notification.ghosttyGotoTab,
             object: nil)
@@ -1492,6 +1497,41 @@ class TerminalController: BaseTerminalController, TabGroupCloseCoordinator.Contr
         selectedWindow.makeKey()
 
         NSAnimationContext.endGrouping()
+    }
+
+    @objc private func onMoveTabToNewWindow(notification: SwiftUI.Notification) {
+        guard let target = notification.object as? Ghostty.SurfaceView else { return }
+        guard target == self.focusedSurface else { return }
+        guard let window = self.window else { return }
+
+        // If our window is not part of a tab group with multiple tabs
+        // then this action does nothing.
+        guard let tabGroup = window.tabGroup else { return }
+        guard let selectedWindow = tabGroup.selectedWindow else { return }
+        guard tabGroup.windows.count > 1 else { return }
+
+        // Capture the frame before detaching so we can offset from it below.
+        let frame = selectedWindow.frame
+
+        // Removing the window from its tab group detaches it into a
+        // standalone window.
+        tabGroup.removeWindow(selectedWindow)
+
+        // Offset the detached window slightly down-right from its original
+        // position so that the detach is visible; otherwise it sits exactly
+        // on top of the window it detached from. Using cascadeTopLeft
+        // constrains the new position to the visible screen. We update the
+        // last cascade point so future new windows cascade from this one.
+        // This is deferred one runloop tick because AppKit performs its own
+        // layout of the detached window after the removal.
+        DispatchQueue.main.async {
+            Self.lastCascadePoint = selectedWindow.cascadeTopLeft(from: .init(
+                x: frame.minX + 28,
+                y: frame.maxY - 28))
+
+            // Ensure our window remains focused
+            selectedWindow.makeKeyAndOrderFront(nil)
+        }
     }
 
     @objc private func onGotoTab(notification: SwiftUI.Notification) {

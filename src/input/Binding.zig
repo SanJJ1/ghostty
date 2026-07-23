@@ -587,6 +587,15 @@ pub const Action = union(enum) {
     /// the last tab.
     move_tab: isize,
 
+    /// Move the current tab into its own new window.
+    ///
+    /// The tab is detached from its current window and becomes the only
+    /// tab in a new window. Does nothing if the tab is already the only
+    /// tab in its window.
+    ///
+    /// This is currently only supported on macOS.
+    move_tab_to_new_window,
+
     /// Toggle the tab overview.
     ///
     /// This is only supported on Linux and when the system's libadwaita
@@ -1418,6 +1427,7 @@ pub const Action = union(enum) {
             .last_tab,
             .goto_tab,
             .move_tab,
+            .move_tab_to_new_window,
             .toggle_tab_overview,
             .new_split,
             .goto_split,

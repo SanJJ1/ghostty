@@ -342,6 +342,9 @@ extension Notification.Name {
     static let ghosttyMoveTab = Notification.Name("com.mitchellh.ghostty.moveTab")
     static let GhosttyMoveTabKey = ghosttyMoveTab.rawValue
 
+    /// Move tab to a new window. Object is the surface requesting the move.
+    static let ghosttyMoveTabToNewWindow = Notification.Name("com.mitchellh.ghostty.moveTabToNewWindow")
+
     /// Close tab
     static let ghosttyCloseTab = Notification.Name("com.mitchellh.ghostty.closeTab")
 

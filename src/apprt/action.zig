@@ -348,6 +348,11 @@ pub const Action = union(Key) {
     /// otherwise the terminal-set title.
     copy_title_to_clipboard,
 
+    /// Move the current tab into its own new window. The tab is detached
+    /// from its current window and becomes the only tab in a new window.
+    /// Does nothing if the tab is already the only tab in its window.
+    move_tab_to_new_window,
+
     /// Sync with: ghostty_action_tag_e
     pub const Key = enum(c_int) {
         quit,
@@ -416,6 +421,7 @@ pub const Action = union(Key) {
         search_selected,
         readonly,
         copy_title_to_clipboard,
+        move_tab_to_new_window,
 
         test "ghostty.h Action.Key" {
             try lib.checkGhosttyHEnum(Key, "GHOSTTY_ACTION_");
